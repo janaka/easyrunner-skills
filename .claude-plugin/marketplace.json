@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/claude-plugin-marketplace.json",
+  "name": "easyrunner-skills",
+  "displayName": "EasyRunner Skills",
+  "description": "Marketplace listing the EasyRunner agent skills plugin.",
+  "owner": {
+    "name": "janaka",
+    "url": "https://easyrunner.xyz"
+  },
+  "plugins": [
+    {
+      "name": "easyrunner-skills",
+      "source": "./",
+      "description": "Agent skills for driving EasyRunner without learning the er CLI."
+    }
+  ]
+}
