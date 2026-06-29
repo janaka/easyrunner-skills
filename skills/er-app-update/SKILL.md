@@ -20,12 +20,15 @@ config for an existing app — it does not redeploy. Tell the user to run
 er app update-details NAME SERVER_NAME
                       [--app-name NAME]
                       [--description TEXT]
-                      [--custom-domain DOMAIN]
                       [--repo-url URL]
                       [--default-deploy-branch BRANCH]
                       [--deploy-flow {flow_a|flow_b}]
                       [--compose-file PATH]
 ```
+
+> To change a public domain, edit the `xyz.easyrunner.service.domain` label in
+> the compose file (in the repo, or via `--compose-file` for flow_b) and
+> redeploy — there is no `--custom-domain` flag (removed in #222).
 
 ## What you can change
 
@@ -33,7 +36,6 @@ er app update-details NAME SERVER_NAME
 |---|---|
 | `--app-name` | Rename the app (friendly name). |
 | `--description` | Replace the short description. |
-| `--custom-domain` | Set/replace the public domain. Triggers a DNS check + setup via the linked Cloudflare account, same as `er app add`. |
 | `--repo-url` | Point flow_a at a different Git repo. |
 | `--default-deploy-branch` | Change the default branch deployed when no `--branch` is passed. |
 | `--deploy-flow` | Switch between `flow_a` and `flow_b`. |
@@ -53,21 +55,24 @@ Pass only the flags you actually want to change. Omitted fields are left alone.
 
 ## Common workflows
 
-### Change the custom domain
+### Change a public domain
 
-```bash
-er app update-details marketing-site my-vps \
-  --custom-domain new.example.com
-```
+Edit the `xyz.easyrunner.service.domain` label on the relevant `web` service in
+the compose file:
 
-Then redeploy:
+- **flow_a / repo apps** — edit `.easyrunner/docker-compose-app.yaml` in the
+  repo, commit, push.
+- **flow_b registry apps** — edit your local compose file, then re-snapshot it:
+
+  ```bash
+  er app update-details marketing-site my-vps --compose-file ./compose.yaml
+  ```
+
+Then redeploy — DNS for the new domain is provisioned at deploy time:
 
 ```bash
 er app deploy marketing-site my-vps
 ```
-
-The CLI sets up DNS at command time, but Caddy isn't reconfigured until the
-next deploy.
 
 ### Bump a flow_b image (e.g. OpenClaw beta)
 

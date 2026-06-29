@@ -42,11 +42,13 @@ Three things must exist in the repo before deployment:
    For Next.js apps, use `output: 'standalone'` in `next.config.js` and a
    standalone runner stage — see the [Next.js reference template](https://docs.easyrunner.xyz/user-guides/nextjs-reference-template/).
 
-   EasyRunner injects two build args automatically at deploy time:
-   - `EASYRUNNER_APP_URL` — full URL the app is served from
-   - `EASYRUNNER_APP_DOMAIN` — domain only
+   EasyRunner injects build args automatically at deploy time:
+   - `EASYRUNNER_APP_URL` / `EASYRUNNER_APP_DOMAIN` — this service's own public
+     URL/domain (from its `xyz.easyrunner.service.domain` label).
+   - `EASYRUNNER_SERVICE_<NAME>_URL` / `_DOMAIN` — the public URL/domain of each
+     web service in the app, so one service can bake in another's URL.
    Consume them with `ARG` in the builder stage when the app needs to know
-   its own public URL at build time (e.g. `NEXT_PUBLIC_*` vars).
+   a public URL at build time (e.g. `NEXT_PUBLIC_*` vars).
 
 4. **Add `.easyrunner/docker-compose-app.yaml`** with this shape:
 
@@ -60,6 +62,7 @@ Three things must exist in the repo before deployment:
          - easyrunner_proxy_network
        labels:
          xyz.easyrunner.service.type: web
+         xyz.easyrunner.service.domain: <app-domain>
          xyz.easyrunner.service.framework: <framework>
          xyz.easyrunner.service.port: "<port>"
          xyz.easyrunner.service.build-context: "."
@@ -70,7 +73,11 @@ Three things must exist in the repo before deployment:
    ```
 
    - The network **must** be `easyrunner_proxy_network` and **must** be marked
-     `external: true`. Caddy lives on that network and routes by service name.
+     `external: true`. Caddy lives on that network and routes each web service
+     to its `xyz.easyrunner.service.domain`.
+   - `xyz.easyrunner.service.domain` is **required on every `web` service** and
+     must be unique within the app. You can declare several `web` services, each
+     on its own domain (see [compose-reference.md](compose-reference.md)).
    - `xyz.easyrunner.service.port` is a **string** (quoted), not a number.
    - Add `volumes:` entries only for caches/data the app genuinely needs to
      persist across redeploys (e.g. `next_cache:/app/.next/cache` for Next.js

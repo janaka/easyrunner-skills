@@ -6,8 +6,9 @@ learning the `er` CLI. Ask the agent to prep, register, deploy, or update an
 app and these skills route it through the right `er app` commands.
 
 EasyRunner turns a single, low-cost server into your own app platform — deploy
-from a git repo or a prebuilt image, give each app a custom domain with
-automatic HTTPS, and pack in as many apps as the box can hold. Scales to multiple servers across providers. Push-button simplicity, on infrastructure you fully own.
+from a git repo or a prebuilt image, give each public service its own domain
+(declared in the compose file) with automatic HTTPS, and pack in as many apps as
+the box can hold. Scales to multiple servers across providers. Push-button simplicity, on infrastructure you fully own.
 
 | Skill | Wraps | What it does |
 |---|---|---|

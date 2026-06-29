@@ -25,7 +25,6 @@ required** inputs for the chosen flow are known:
 | `repo_url` | flow_a | HTTPS Git URL of the app repo. Required for flow_a; optional for flow_b. |
 | `--deploy-flow` | both | `flow_a` (default) builds from source. `flow_b` deploys a pre-built image. |
 | `--compose-file` | flow_b | Path to a local docker-compose file to snapshot. **Requires `--deploy-flow flow_b`.** |
-| `--custom-domain` | optional | Domain the app should be served at (e.g. `marketing.example.com`). Configures Caddy + DNS. |
 | `--description` | optional | One-line description. |
 | `--default-deploy-branch` | optional | Git branch to deploy from by default. Defaults to `main`. |
 
@@ -45,11 +44,14 @@ required** inputs for the chosen flow are known:
 ```bash
 er app add <name> <server_name> <repo_url> \
   [--description "..."] \
-  [--custom-domain marketing.example.com] \
   [--default-deploy-branch main]
 ```
 
 `--deploy-flow flow_a` is the default; you can omit it.
+
+Public domains are **not** set here — each `web` service declares its own
+`xyz.easyrunner.service.domain` label in the compose file (see the
+`er-app-repo-prep` skill). DNS is provisioned at deploy time.
 
 ### flow_b (pre-built registry image)
 
@@ -57,7 +59,6 @@ er app add <name> <server_name> <repo_url> \
 er app add <name> <server_name> \
   --deploy-flow flow_b \
   --compose-file ./path/to/compose.yaml \
-  [--custom-domain app.example.com] \
   [--description "..."]
 ```
 
@@ -73,8 +74,8 @@ Don't try to replicate these — let the CLI fail loudly:
 - `--compose-file` without `--deploy-flow flow_b` → rejected.
 - flow_a with no `repo_url` → rejected.
 - App name already exists on that server → rejected.
-- `--custom-domain` triggers a DNS lookup/setup step (Cloudflare). The CLI
-  prints what it did or warns and skips on failure.
+- For flow_b, the snapshotted compose is validated for `service.domain` labels.
+  DNS itself is provisioned later, at `er app deploy`.
 
 ## After it succeeds
 

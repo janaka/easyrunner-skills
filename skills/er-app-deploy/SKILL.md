@@ -53,9 +53,17 @@ To deploy from a non-default branch for one run:
 er app deploy marketing-site my-vps --branch feature/new-landing
 ```
 
-The CLI shows a 7-step Rich progress bar covering: clone/pull, build, image
+Before deploying, the CLI reads the app's compose (from the repo when one is
+defined — the repo is the source of truth — otherwise the stored content),
+validates the `xyz.easyrunner.service.domain` labels, and provisions a
+Cloudflare A record per public domain so TLS issues cleanly on first deploy.
+
+It then shows a 7-step Rich progress bar covering: clone/pull, build, image
 load, Quadlet generation, systemd reload, container start, Caddy route
-update. On success it prints the public URL if a custom domain is set.
+update. On success it prints one public URL per routed web service.
+
+> First-deploy TLS note: certificates may take a minute to issue while the new
+> DNS record propagates (TTL 300s); Caddy retries automatically.
 
 ## Common failures and what to tell the user
 
