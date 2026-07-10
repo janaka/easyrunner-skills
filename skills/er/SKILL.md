@@ -21,6 +21,7 @@ right sub-skill for the task.
 
 | User intent | Use this skill |
 |---|---|
+| "Spin up / provision / tear down a **server** (cloud VM host)" — `er server create` / `init` / `delete` | `er-server-provision` |
 | "Make this repo deployable to easyrunner" / "add a Dockerfile + compose for easyrunner" | `er-app-repo-prep` |
 | "Register a new app on my server" / "add an app called X" | `er-app-create` |
 | "Deploy this app" / "ship the latest commit" / "redeploy X" | `er-app-deploy` |
@@ -68,6 +69,7 @@ omit newer flags but should still work for the documented happy path. Prefer
 
 ## Out of scope here
 
-Server provisioning, license setup, mesh/wireguard, secret vault, and DNS
-linking are not yet covered by sub-skills. For those, point the user at
-`er <noun> --help` and the [easyrunner docs](https://docs.easyrunner.xyz).
+License setup, mesh/wireguard, secret vault, and DNS linking are not yet
+covered by sub-skills (server provisioning now is — see `er-server-provision`).
+For the rest, point the user at `er <noun> --help` and the
+[easyrunner docs](https://docs.easyrunner.xyz).
