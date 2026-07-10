@@ -1,18 +1,15 @@
 {
-  "$schema": "https://json.schemastore.org/claude-plugin.json",
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "easyrunner-skills",
   "displayName": "EasyRunner Skills",
   "version": "0.54.0b1",
-  "description": "Agent skills for driving EasyRunner (the single-server self-hosting PaaS) without learning the er CLI. Wraps er app commands for repo prep, app create, deploy, and update.",
+  "description": "Agent skills for driving EasyRunner (the single-server self-hosting PaaS) without learning the er CLI. Covers server provisioning plus er app repo prep, app create, deploy, and update.",
   "author": {
     "name": "janaka",
     "url": "https://easyrunner.xyz"
   },
   "homepage": "https://easyrunner.xyz",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/janaka/easyrunner-skills"
-  },
+  "repository": "https://github.com/janaka/easyrunner-skills",
   "license": "MIT",
   "keywords": [
     "easyrunner",
@@ -25,13 +22,5 @@
   "compatibility": {
     "min_er_version": "0.54.0b1",
     "notes": "Skills wrap the public `er` CLI command surface. The plugin version mirrors the `er` CLI release it was generated from. If `er --version` differs significantly, upgrade `er` (or the plugin) to keep the command surface in sync."
-  },
-  "skills": [
-    "skills/er",
-    "skills/er-server-provision",
-    "skills/er-app-repo-prep",
-    "skills/er-app-create",
-    "skills/er-app-deploy",
-    "skills/er-app-update"
-  ]
+  }
 }
