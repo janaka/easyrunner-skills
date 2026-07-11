@@ -33,14 +33,19 @@ er license status   # Server Limit vs. count — create aborts if you're at the 
 ## Provision + bring up
 
 ```bash
-er server create <name> hetzner   # provisions the VM + firewall + SSH key; registers it
-er server init <name>             # installs the easyrunner stack onto it
+er server create <name> hetzner           # provisions the VM + firewall + SSH key; registers it
+er server init <name> --username root      # installs the easyrunner stack (FIRST init: connect as root)
 ```
 
 `<name>` is a friendly, unique label (e.g. `nettest`) — the handle for every later command.
 `create` prints the server's **IP** and **Server ID** and stores the SSH key under
-`~/.ssh/easyrunner_keys/`. `init` addresses the server by `<name>` and defaults to the
-`easyrunner` ops user (`--username` to override).
+`~/.ssh/easyrunner_keys/`.
+
+> **First `init` on a freshly-`create`d cloud VM must use `--username root`.** `init` defaults
+> to the `easyrunner` ops user, but on a brand-new Hetzner box that user doesn't exist yet —
+> only `root` carries the injected SSH key. `init --username root` connects as root, *creates*
+> the `easyrunner` user, and installs the stack; every later command then uses `easyrunner`
+> (the default). Without `--username root` the first init fails with `Authentication failed`.
 
 Provisioning and init are **separate steps** — `create` alone gives you a bare VM with no
 easyrunner stack. Run `init` after.
@@ -50,12 +55,17 @@ easyrunner stack. Run `init` after.
 | | |
 |---|---|
 | Image | `ubuntu-24.04` |
-| Size | `cx22` (2 vCPU, 4 GB RAM, shared vCPU) |
+| Size | `cx23` (2 vCPU, 4 GB RAM, shared vCPU) |
 | Location | `fsn1` (Falkenstein, DE) — fixed, regardless of the provider's `nbg1` default |
 | Cloud firewall | Hetzner-level: **in** TCP 22/80/443; **out** all TCP, UDP 123 (NTP), ICMP |
 
 To use a different size/region/image you must edit `hetzner_resource_factory.py`, or
 hand-provision the VM and register it with `er server add <name> <ip>` instead.
+
+> **If `create` fails with `server type <x> not found`, Hetzner has retired that type.**
+> The hardcoded size is a moving target (Hetzner periodically retires types, e.g. `cx11`→…→
+> `cx22`→`cx23`). Pick the current same-spec replacement from the live catalogue
+> (`GET https://api.hetzner.cloud/v1/server_types`) and update `hetzner_resource_factory.py`.
 
 ## Verify
 
@@ -71,11 +81,15 @@ new host. Every fresh server should get one end-to-end deploy before you rely on
 canonical Next.js hello-world:
 
 ```bash
-er app add hello <name> https://github.com/janaka/next-helloworld-app.git   # Flow A (default) — build on server
+er app add hello <name> git@github.com:janaka/next-helloworld-app.git   # Flow A: SSH URL required (deploy keys)
 er app deploy hello <name>    # clones, builds, starts behind Caddy, auto-provisions Cloudflare DNS + TLS
 er app status hello <name>    # containers should come up
 ```
 
+- **Flow A requires an SSH repo URL (`git@github.com:...`), not HTTPS** — deploys authenticate
+  with a per-app deploy key over SSH. An HTTPS URL fails deploy with "Only SSH repository URLs
+  are supported". (On a hardened host the clone runs over `ssh.github.com:443`, since the #228
+  egress policy blocks outbound port 22 — see the firewall note below.)
 - `next-helloworld-app` is already easyrunner-ready (Containerfile + `.easyrunner` compose
   with the `xyz.easyrunner.service.*` labels), so it needs **no repo prep** and no domain flag.
 - **The public domain is the `xyz.easyrunner.service.domain` label in that repo's compose** —
@@ -139,6 +153,6 @@ er server delete <name> hetzner   # DESTROYS the Hetzner VM + firewall, cleans S
 | `er server remove` to destroy a cloud VM | `remove` leaves the VM billing — use `er server delete <name> hetzner` |
 | `er server delete <name>` (no provider) | Provider positional required: `... delete <name> hetzner` |
 | `er server init <name> hetzner` | `init` takes only `<name>` (plus optional `--username`) |
-| Passing `--size` / `--region` / `--image` to `create` | No such flags — values are hardcoded (cx22 / fsn1 / ubuntu-24.04) |
+| Passing `--size` / `--region` / `--image` to `create` | No such flags — values are hardcoded (cx23 / fsn1 / ubuntu-24.04) |
 | `er server add` to spin up a new VM | `add` registers an *existing* host; `create` provisions a new one |
 | `er server delete` while the server still has apps | Remove its apps first, then `delete` |

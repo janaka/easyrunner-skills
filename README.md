@@ -13,6 +13,7 @@ the box can hold. Scales to multiple servers across providers. Push-button simpl
 | Skill | Wraps | What it does |
 |---|---|---|
 | [`er`](./skills/er/SKILL.md) | — | Router / overview — picks the right sub-skill |
+| [`er-server-provision`](./skills/er-server-provision/SKILL.md) | `er server create` / `init` / `delete` | Provision, initialise, and tear down the server host itself (Hetzner) |
 | [`er-app-repo-prep`](./skills/er-app-repo-prep/SKILL.md) | (repo edits) | Make a repo deployable (`Dockerfile`, `.easyrunner` compose, service labels) |
 | [`er-app-create`](./skills/er-app-create/SKILL.md) | `er app add` | Register a new app on a server |
 | [`er-app-deploy`](./skills/er-app-deploy/SKILL.md) | `er app deploy` | Deploy, verify, and manage app lifecycle |
